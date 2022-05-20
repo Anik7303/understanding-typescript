@@ -1,0 +1,35 @@
+{
+  "name": "understanding-typescript",
+  "version": "0.1.0",
+  "description": "Udemy Course | Understanding Typescript | Maximilian Schwarzmuller",
+  "main": "index.ts",
+  "private": true,
+  "scripts": {
+    "run:build": "tsc --watch",
+    "run:backend": "nodemon ./build/index.js",
+    "run:frontend": "lite-server",
+    "start": "run-p run:build run:backend run:frontend"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Anik7303/understanding-typescript.git"
+  },
+  "keywords": [],
+  "author": {
+    "name": "Anik Mohammad",
+    "email": "anik7303@gmail.com"
+  },
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Anik7303/understanding-typescript/issues"
+  },
+  "homepage": "https://github.com/Anik7303/understanding-typescript#readme",
+  "devDependencies": {
+    "nodemon": "^2.0.16",
+    "npm-run-all": "^4.1.5",
+    "typescript": "^4.6.4"
+  },
+  "dependencies": {
+    "lite-server": "^2.6.1"
+  }
+}
