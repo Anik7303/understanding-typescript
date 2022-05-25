@@ -120,5 +120,36 @@ class Person {
   }
 }
 
-const person = new Person("Anik");
-console.log(person.getInfo());
+function Autobind(
+  target: any,
+  name: string | symbol | number,
+  desc: PropertyDescriptor
+): PropertyDescriptor {
+  // the method this decorator is assigned to
+  const method = desc.value;
+
+  // adjusted property descriptor
+  return {
+    enumerable: false,
+    configurable: true,
+    get() {
+      return method.bind(this);
+    },
+  };
+}
+
+class Printable {
+  message = "This works!";
+
+  @Autobind
+  print() {
+    console.log(this.message);
+  }
+}
+
+const printable = new Printable();
+
+const button = document.getElementById("btn-click") as HTMLButtonElement;
+if (button) {
+  button.addEventListener("click", printable.print);
+}
