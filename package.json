@@ -8,7 +8,7 @@
     "run:build": "tsc --watch",
     "run:backend": "nodemon ./build/index.js",
     "run:frontend": "lite-server",
-    "start": "run-p run:build run:backend run:frontend"
+    "dev": "run-p run:build run:frontend"
   },
   "repository": {
     "type": "git",
