@@ -78,3 +78,47 @@ class Product {
     return this._price * (1 + tax);
   }
 }
+
+// class decorator with decorator factory
+function WithTemplate(template: string, hookId: string) {
+  return function <T extends { new (...args: any[]): { name: string } }>(
+    target: T
+  ) {
+    console.log("redering template");
+    // class decorator can return a new customized contructor function to replace the old constructor function
+    return class extends target {
+      constructor(...args: any[]) {
+        super(...args);
+        const hookEl = document.getElementById(hookId) as HTMLDivElement;
+        if (hookEl) {
+          hookEl.innerHTML = template;
+
+          const paragraphEl = document.createElement("p");
+
+          paragraphEl.textContent = this.name;
+          hookEl.append(paragraphEl);
+        }
+      }
+    };
+  };
+}
+
+@WithTemplate("<h1>Template</h1>", "root")
+class Person {
+  constructor(private _name: string) {}
+
+  get name() {
+    return this._name;
+  }
+
+  set name(name: string) {
+    this._name = name;
+  }
+
+  getInfo(): string {
+    return `Name: ${this.name}`;
+  }
+}
+
+const person = new Person("Anik");
+console.log(person.getInfo());
