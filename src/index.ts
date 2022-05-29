@@ -7,6 +7,18 @@ interface Validatable {
   max?: number;
 }
 
+// Drag & Drop Interfaces
+interface Draggable {
+  handleDragStart(event: DragEvent): void;
+  handleDragEnd(event: DragEvent): void;
+}
+
+interface DropTarget {
+  handleDragOver(event: DragEvent): void;
+  handleDrop(event: DragEvent): void;
+  handleDragLeave(event: DragEvent): void;
+}
+
 // Autobind decorator
 function autobind(
   _1: any,
@@ -77,6 +89,18 @@ class ProjectState extends State<Project> {
 
     this.projects.push(newProject);
 
+    this.updateListeners();
+  }
+
+  moveProject(projectId: string, newStatus: ProjectStatus): void {
+    const project = this.projects.find((project) => project.id === projectId);
+    if (project && project.status !== newStatus) {
+      project.status = newStatus;
+      this.updateListeners();
+    }
+  }
+
+  private updateListeners(): void {
     for (let listener of this.listeners) {
       listener(this.projects.slice());
     }
@@ -122,7 +146,10 @@ abstract class Component<T extends HTMLElement, U extends HTMLElement> {
 }
 
 // ProjectItem Class
-class ProjectItem extends Component<HTMLUListElement, HTMLLIElement> {
+class ProjectItem
+  extends Component<HTMLUListElement, HTMLLIElement>
+  implements Draggable
+{
   private project: Project;
 
   get persons() {
@@ -139,7 +166,19 @@ class ProjectItem extends Component<HTMLUListElement, HTMLLIElement> {
     this.renderContent();
   }
 
-  configure(): void {}
+  @autobind
+  handleDragStart(event: DragEvent): void {
+    event.dataTransfer!.setData("text/plain", this.project.id);
+    event.dataTransfer!.effectAllowed = "move";
+  }
+
+  @autobind
+  handleDragEnd(_: DragEvent): void {}
+
+  configure(): void {
+    this.element.addEventListener("dragstart", this.handleDragStart);
+    this.element.addEventListener("dragend", this.handleDragEnd);
+  }
 
   renderContent(): void {
     this.element.querySelector("h2")!.textContent = this.project.title;
@@ -149,7 +188,11 @@ class ProjectItem extends Component<HTMLUListElement, HTMLLIElement> {
 }
 
 // ProjectList Class
-class ProjectList extends Component<HTMLDivElement, HTMLUListElement> {
+class ProjectList
+  extends Component<HTMLDivElement, HTMLElement>
+  implements DropTarget
+{
+  private listElement: HTMLUListElement;
   private assignedProjects: Project[] = [];
 
   constructor(private type: ProjectStatus) {
@@ -162,28 +205,49 @@ class ProjectList extends Component<HTMLDivElement, HTMLUListElement> {
       this.renderProjects();
     });
 
+    this.listElement = this.element.querySelector("ul")! as HTMLUListElement;
+
+    this.configure();
     this.renderContent();
   }
 
+  @autobind
+  handleDragOver(event: DragEvent): void {
+    if (event.dataTransfer && event.dataTransfer.types[0] === "text/plain") {
+      event.preventDefault();
+      this.listElement.classList.add("droppable");
+    }
+  }
+
+  @autobind
+  handleDrop(event: DragEvent): void {
+    const projectId = event.dataTransfer!.getData("text/plain");
+    projectState.moveProject(projectId, this.type);
+  }
+
+  @autobind
+  handleDragLeave(_: DragEvent): void {
+    this.listElement.classList.remove("droppable");
+  }
+
+  configure(): void {
+    this.element.addEventListener("dragover", this.handleDragOver);
+    this.element.addEventListener("drop", this.handleDrop);
+    this.element.addEventListener("dragleave", this.handleDragLeave);
+  }
+
   renderContent(): void {
-    const listId = `${this.type}-projects-list`;
-    this.element.querySelector("ul")!.id = listId;
     this.element.querySelector(
       "h2"
     )!.textContent = `${this.type.toUpperCase()} PROJECTS`;
+    this.listElement.id = `${this.type}-projects-list`;
   }
 
-  configure(): void {}
-
   private renderProjects(): void {
-    const listEl = document.getElementById(
-      `${this.type}-projects-list`
-    )! as HTMLUListElement;
-
-    listEl.innerHTML = "";
+    this.listElement.innerHTML = "";
 
     for (let projectItem of this.assignedProjects) {
-      new ProjectItem(listEl.id, projectItem);
+      new ProjectItem(this.listElement.id, projectItem);
     }
   }
 }
