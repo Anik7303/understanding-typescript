@@ -39,6 +39,7 @@
   },
   "dependencies": {
     "@types/lodash": "^4.14.182",
+    "class-transformer": "^0.5.1",
     "lodash": "^4.17.21"
   }
 }
