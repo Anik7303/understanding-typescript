@@ -7,4 +7,4 @@ package-lock.json
 
 # misc
 *.js
-
+!webpack*.config.js
