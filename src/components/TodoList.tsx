@@ -1,7 +1,14 @@
 import React from "react";
+import styled from "styled-components";
 
 import { Todo } from "../models";
 import { TodoItem } from "./index";
+
+const TodoUl = styled.ul`
+  list-style: none;
+  padding: 1rem;
+  box-shadow: 0px 2px 10px 4px rgba(224, 255, 248, 0.5);
+`;
 interface TodoListProps {
   todos: Todo[];
   onTodoDelete: (todoId: string) => void;
@@ -9,15 +16,13 @@ interface TodoListProps {
 
 const TodoList: React.FC<TodoListProps> = ({ todos, onTodoDelete }) => {
   return (
-    <section className="section-todo__list">
-      <ul className="list-todo">
-        {todos.map((todo) => {
-          return (
-            <TodoItem key={todo.id} todo={todo} onTodoDelete={onTodoDelete} />
-          );
-        })}
-      </ul>
-    </section>
+    <TodoUl>
+      {todos.map((todo) => {
+        return (
+          <TodoItem key={todo.id} todo={todo} onTodoDelete={onTodoDelete} />
+        );
+      })}
+    </TodoUl>
   );
 };
 
